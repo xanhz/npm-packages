@@ -1,0 +1,35 @@
+name: Publish Package @xanhz/dsa to NPM
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - packages/dsa/src/**
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Setup Node 16
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16.x'
+          registry-url: 'https://registry.npmjs.org'
+      
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Linting
+        run: yarn nx lint dsa
+
+      - name: Testing
+        run: yarn nx test dsa
+
+      - name: Build & Publish
+        run: yarn nx run dsa:publish --tag latest
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

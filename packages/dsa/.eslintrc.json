@@ -4,7 +4,14 @@
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
-      "rules": {}
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off",
+        "prefer-const": "off",
+        "indent": ["error", 2],
+        "linebreak-style": ["error", "unix"],
+        "quotes": ["error", "single"],
+        "semi": ["error", "always"]
+      }
     },
     {
       "files": ["*.ts", "*.tsx"],
