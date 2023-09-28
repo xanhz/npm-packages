@@ -1,1 +1,2 @@
-export * from './lib/dsa';
+export * from './data-structures';
+export * from './interfaces';

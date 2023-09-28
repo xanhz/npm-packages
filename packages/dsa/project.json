@@ -15,7 +15,7 @@
       }
     },
     "publish": {
-      "command": "node tools/scripts/publish.mjs dsa {args.ver} {args.tag}",
+      "command": "node tools/scripts/publish.mjs dsa {args.tag}",
       "dependsOn": ["build"]
     },
     "lint": {
