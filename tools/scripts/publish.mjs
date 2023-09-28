@@ -8,7 +8,7 @@
  */
 
 import { execSync } from 'child_process';
-import { readFileSync, writeFileSync } from 'fs';
+import fs from 'fs';
 
 import devkit from '@nx/devkit';
 const { readCachedProjectGraph } = devkit;
@@ -20,40 +20,32 @@ function invariant(condition, message) {
   }
 }
 
-// Executing publish script: node path/to/publish.mjs {name} --version {version} --tag {tag}
+// Executing publish script: node path/to/publish.mjs {name} --tag {tag}
 // Default "tag" to "next" so we won't publish the "latest" tag by accident.
-const [, , name, version, tag = 'next'] = process.argv;
-
-// A simple SemVer validation to validate the version
-const validVersion = /^\d+\.\d+\.\d+(-\w+\.\d+)?/;
-invariant(
-  version && validVersion.test(version),
-  `No version provided or version did not match Semantic Versioning, expected: #.#.#-tag.# or #.#.#, got ${version}.`
-);
+const [, , name, tag = 'next'] = process.argv;
 
 const graph = readCachedProjectGraph();
 const project = graph.nodes[name];
-
-invariant(
-  project,
-  `Could not find project "${name}" in the workspace. Is the project.json configured correctly?`
-);
-
 const outputPath = project.data?.targets?.build?.options?.outputPath;
-invariant(
-  outputPath,
-  `Could not find "build.options.outputPath" of project "${name}". Is project.json configured  correctly?`
-);
 
+// Check if project is existed
+invariant(project, `Could not find project "${name}" in the workspace. Is the project.json configured correctly?`);
+
+// Check where project is built
+invariant(outputPath, `Could not find "build.options.outputPath" of project "${name}". Is project.json configured  correctly?`);
+
+// Switch context to outputPath
 process.chdir(outputPath);
 
-// Updating the version in "package.json" before publishing
+// Check if package version is valid
 try {
-  const json = JSON.parse(readFileSync(`package.json`).toString());
-  json.version = version;
-  writeFileSync(`package.json`, JSON.stringify(json, null, 2));
-} catch (e) {
-  console.error(`Error reading package.json file from library build output.`);
+  const text = fs.readFileSync(`package.json`).toString();
+  const json = JSON.parse(text);
+  const version = json.version
+  const validVersion = /^\d+\.\d+\.\d+(-\w+\.\d+)?/;
+  invariant(version && validVersion.test(version), `Invalid version, expected: #.#.#-tag.# or #.#.#, got ${version}`);
+} catch (error) {
+  console.error(`Error reading package.json file from library build output`, error);
 }
 
 // Execute "npm publish" to publish
