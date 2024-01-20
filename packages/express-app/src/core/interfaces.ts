@@ -2,11 +2,11 @@ import { CorsOptions } from 'cors';
 import { IncomingMessage, ServerResponse } from 'http';
 import { Logger } from './logger';
 
-interface Type<T = any> extends Function {
+export interface Type<T = any> extends Function {
   new (...args: any[]): T;
 }
 
-type InjectionToken<T = any> = string | Type<T>;
+export type InjectionToken<T = any> = string | Type<T>;
 
 export interface ValueProvider<T = any> {
   provide: InjectionToken<T>;
@@ -59,14 +59,14 @@ export interface OnHeartbeat {
   onHeartbeat(): Promise<any>;
 }
 
-interface LoggingOptions {
+export interface LoggingOptions {
   /**
    * Routes should be excluded when logging
    */
   exclude?: Array<string | RegExp>;
 }
 
-interface RawOptions {
+export interface RawOptions {
   /** When set to true, then deflated (compressed) bodies will be inflated; when false, deflated bodies are rejected. Defaults to true. */
   inflate?: boolean | undefined;
   /**
@@ -86,7 +86,7 @@ interface RawOptions {
   verify?(req: IncomingMessage, res: ServerResponse, buf: Buffer, encoding: string): void;
 }
 
-interface JsonOptions extends RawOptions {
+export interface JsonOptions extends RawOptions {
   /**
    * The reviver option is passed directly to JSON.parse as the second argument.
    */
@@ -98,7 +98,7 @@ interface JsonOptions extends RawOptions {
   strict?: boolean | undefined;
 }
 
-interface UrlencodedOptions extends RawOptions {
+export interface UrlencodedOptions extends RawOptions {
   /**
    * The extended option allows to choose between parsing the URL-encoded data
    * with the querystring library (when `false`) or the qs library (when `true`).
@@ -112,7 +112,7 @@ interface UrlencodedOptions extends RawOptions {
   parameterLimit?: number | undefined;
 }
 
-interface TextOptions extends RawOptions {
+export interface TextOptions extends RawOptions {
   /**
    * Specify the default character set for the text content if the charset
    * is not specified in the Content-Type header of the request.
