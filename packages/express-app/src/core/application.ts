@@ -4,7 +4,7 @@ import { toHttpError } from '../utils/error';
 import * as _ from '../utils/lodash';
 import { ApplicationOptions, IExpressApplication, Provider, Type } from './interfaces';
 import { Logger } from './logger';
-import { context, log } from './middlewares';
+import { log, context } from './middlewares';
 
 import express = require('express');
 import $cors = require('cors');
@@ -12,25 +12,33 @@ import $cors = require('cors');
 export class ExpressApplication implements IExpressApplication {
   public readonly name: string;
   public readonly prefix: string;
-  private readonly providers: Provider[];
-  private readonly containers: Map<string, any>;
-  private readonly express: Express;
+  protected readonly providers: Provider[];
+  protected readonly containers: Map<string, any>;
+  protected readonly express: Express;
+  protected readonly logger: Logger;
 
   constructor(options: ApplicationOptions = {}) {
+    const { cors, logging, name = ExpressApplication.name, prefix = '', parsers = {} } = options;
+    const { json, urlencoded, raw, text } = parsers;
+
+    this.name = name;
+    this.prefix = prefix;
     this.providers = [];
     this.containers = new Map();
     this.express = express();
+    this.logger = new Logger(name);
 
-    const { cors, logging, name = ExpressApplication.name, prefix = '' } = options;
+    const middlewares = [$cors(cors), context(this), express.json(json), express.urlencoded(urlencoded)];
 
-    this.prefix = prefix;
-    this.name = name;
+    if (!_.isNil(raw)) {
+      middlewares.push(express.raw(raw));
+    }
 
-    const middlewares = [$cors(cors), context(this), log(logging)];
-    this.express.use(...middlewares);
+    if (!_.isNil(text)) {
+      middlewares.push(express.text(text));
+    }
 
-    const logger = new Logger(ExpressApplication.name);
-    this.containers.set(Logger.name, logger);
+    this.express.use(...middlewares, log(logging));
 
     this.setupHeartbeat();
   }
@@ -54,15 +62,13 @@ export class ExpressApplication implements IExpressApplication {
   }
 
   public async bootstrap(): Promise<void> {
-    const logger = this.get(Logger);
-
     for (const provider of this.providers) {
       // @ts-ignore
       const { provide, inject = [], useFactory, useValue } = provider;
       const token = toStringToken(provide);
       let instance = null;
 
-      logger.info('Initializing %s', token);
+      this.logger.info('Initializing %s', token);
 
       if (!_.isNil(useValue)) {
         instance = useValue;
@@ -87,18 +93,17 @@ export class ExpressApplication implements IExpressApplication {
       this.containers.set(token, instance);
 
       if (isOnApplicationBootstrap(instance)) {
-        logger.info('Bootstrapping %s', token);
+        this.logger.info('Bootstrapping %s', token);
         await instance.onBootstrap();
       }
     }
   }
 
   public async close(): Promise<void> {
-    const logger = this.get(Logger);
-    logger.info('Closing app...');
+    this.logger.info('Closing app...');
     for (const [token, instance] of this.containers.entries()) {
       if (isOnApplicationDestroy(instance)) {
-        logger.info('Destroying %s', token);
+        this.logger.info('Destroying %s', token);
         await instance.onDestroy();
       }
     }
@@ -116,6 +121,9 @@ export class ExpressApplication implements IExpressApplication {
 
   public get<TInput = any, TResult = TInput>(token: string | Type<TInput>): TResult {
     const $token = toStringToken(token);
+    if ($token === Logger.name) {
+      return this.logger as TResult;
+    }
     return this.containers.get($token);
   }
 
