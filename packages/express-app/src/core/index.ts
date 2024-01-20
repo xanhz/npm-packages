@@ -1,4 +1,4 @@
-export * from './application';
+export * from './factory';
 export * from './handler';
 export * from './errors';
 export * from './interfaces';
