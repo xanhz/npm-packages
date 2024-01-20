@@ -1,0 +1,35 @@
+name: Publish Package @xanhz/express-app to NPM
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - packages/express-app/src/**
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Setup Node 16
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16.x'
+          registry-url: 'https://registry.npmjs.org'
+      
+      - name: Install dependencies
+        run: npm install
+
+      - name: Linting
+        run: npx nx run express-app:lint
+
+      - name: Testing
+        run: npx nx run express-app:test
+
+      - name: Build & Publish
+        run: npx nx run express-app:publish --tag latest
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
