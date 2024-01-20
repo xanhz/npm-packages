@@ -1,6 +1,4 @@
-# Express App for personal project
-
-## Usage
+# Usage
 
 ```js
 // services/env.service.js
@@ -52,8 +50,7 @@ app.register([
 module.exports = app;
 
 // router.js
-const { createRequestHandler, Storage } = require('@xanhz/express-app');
-const express = require('express');
+const { createRequestHandler, Storage, express } = require('@xanhz/express-app');
 
 const router = express.Router();
 
