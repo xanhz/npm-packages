@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "sourceMap": false,
     "module": "commonjs",
     "forceConsistentCasingInFileNames": true,
     "strict": true,

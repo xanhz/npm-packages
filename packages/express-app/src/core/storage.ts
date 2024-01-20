@@ -1,7 +1,7 @@
 import { AsyncLocalStorage } from 'async_hooks';
 import { RequestContext } from './interfaces';
 
-interface LocalStorage<T = any> extends AsyncLocalStorage<T> {
+declare class LocalStorage<T = any> extends AsyncLocalStorage<T> {
   getStore(): T;
 }
 
