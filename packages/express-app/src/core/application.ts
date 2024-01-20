@@ -1,64 +1,25 @@
 import { Express } from 'express';
-import { isOnApplicationBootstrap, isOnApplicationDestroy, isOnHeartbeat, toStringToken } from '../utils/app';
-import { toHttpError } from '../utils/error';
+import { isOnApplicationBootstrap, isOnApplicationDestroy, toStringToken } from '../utils/app';
 import * as _ from '../utils/lodash';
-import { ApplicationOptions, IExpressApplication, Provider, Type } from './interfaces';
+import { IExpressApplication, Provider, Type } from './interfaces';
 import { Logger } from './logger';
-import { log, context } from './middlewares';
+import { context } from './middlewares';
 
 import express = require('express');
-import $cors = require('cors');
 
 export class ExpressApplication implements IExpressApplication {
-  public readonly name: string;
-  public readonly prefix: string;
   protected readonly providers: Provider[];
   protected readonly containers: Map<string, any>;
   protected readonly express: Express;
   protected readonly logger: Logger;
 
-  constructor(options: ApplicationOptions = {}) {
-    const { cors, logging, name = ExpressApplication.name, prefix = '', parsers = {} } = options;
-    const { json, urlencoded, raw, text } = parsers;
-
-    this.name = name;
-    this.prefix = prefix;
+  constructor() {
     this.providers = [];
     this.containers = new Map();
     this.express = express();
-    this.logger = new Logger(name);
+    this.logger = new Logger(ExpressApplication.name);
 
-    const middlewares = [$cors(cors), context(this), express.json(json), express.urlencoded(urlencoded)];
-
-    if (!_.isNil(raw)) {
-      middlewares.push(express.raw(raw));
-    }
-
-    if (!_.isNil(text)) {
-      middlewares.push(express.text(text));
-    }
-
-    this.express.use(...middlewares, log(logging));
-
-    this.setupHeartbeat();
-  }
-
-  private setupHeartbeat() {
-    this.express.get('/heartbeat/ping', (_, res) => res.send(`Hi I am ${this.name}`));
-    this.express.get('/heartbeat/ready', async (_, res) => {
-      try {
-        const services = this.containers.values();
-        for (const service of services) {
-          if (isOnHeartbeat(service)) {
-            await service.onHeartbeat();
-          }
-        }
-        res.send(`${this.name} is ready`);
-      } catch (e) {
-        const error = toHttpError(e);
-        res.status(error.code).send(error.toJSON());
-      }
-    });
+    this.express.use(context(this));
   }
 
   public async bootstrap(): Promise<void> {
@@ -127,13 +88,8 @@ export class ExpressApplication implements IExpressApplication {
     return this.containers.get($token);
   }
 
-  public set(setting: string, val: any): IExpressApplication {
-    this.express.set(setting, val);
-    return this;
-  }
-
-  public use(...handlers: any[]): IExpressApplication {
-    this.express.use(this.prefix, ...handlers);
+  public use(...args: any[]): IExpressApplication {
+    this.express.use(...args);
     return this;
   }
 

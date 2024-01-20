@@ -1,3 +1,9 @@
+# Installation
+
+```bash
+npm install express @xanhz/express-app
+```
+
 # Usage
 
 ```js
@@ -18,18 +24,10 @@ class EnvService {
 module.exports = { EnvService };
 
 // app.js
-const { ExpressApplication } = require('@xanhz/express-app');
+const { ApplicationFactory } = require('@xanhz/express-app');
 const { EnvService } = require('./services/env.service');
 
-const app = new ExpressApplication({
-  name: 'my-app',
-  cors: {
-    origin: '*',
-  },
-  logging: {
-    exclude: [],
-  },
-});
+const app = new ApplicationFactory.create();
 
 app.register([
   {
@@ -50,9 +48,10 @@ app.register([
 module.exports = app;
 
 // router.js
-const { createRequestHandler, Storage, express } = require('@xanhz/express-app');
+const { createRequestHandler, Storage } = require('@xanhz/express-app');
+const { Router } = require('express');
 
-const router = express.Router();
+const router = Router();
 
 const callback = (req) => {
   const ctx = Storage.getStore();
@@ -69,7 +68,10 @@ router.get('hello-world', createRequestHandler(callback));
 module.exports = router;
 
 // main.js
-const { Logger } = require('@xanhz/express-app');
+const { Logger, log } = require('@xanhz/express-app');
+const cors = require('cors');
+const compression = require('compression');
+const { json, urlencoded } = require('express');
 const app = require('./app');
 const router = require('./router');
 const { EnvService } = require('./services/env.service');
@@ -80,12 +82,29 @@ async function main() {
   const env = app.get(EnvService);
   const logger = app.get(Logger);
 
-  app.use(router);
+  const middlewares = [
+    cors(),
+    compression(),
+    json({
+      limit: '5mb',
+    }),
+    urlencoded({
+      limit: '5mb',
+      extend: true,
+    }),
+    log({
+      exclude: ['/'],
+    }),
+  ];
 
   const port = +env.get('PORT', 3000);
-  app.listen(port, () => {
-    logger.info('Listening on port %d', port);
-  });
+
+  app
+    .use(...middlewares)
+    .use(router)
+    .listen(port, () => {
+      logger.info('Listening on port %d', port);
+    });
 }
 
 main();
