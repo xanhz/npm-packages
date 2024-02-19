@@ -5,37 +5,37 @@ export class PriorityQueue<T = any> extends Heap<T> {}
 
 export class Queue<T = any> {
   private elements: T[];
-  private top: number;
+  private head: number;
 
   constructor() {
     this.elements = [];
-    this.top = 0;
+    this.head = 0;
   }
 
-  public size(): number {
-    return this.elements.length - this.top;
+  public get size(): number {
+    return this.elements.length - this.head;
   }
 
-  public isEmpty(): boolean {
-    return this.top >= this.elements.length;
+  public empty(): boolean {
+    return this.head >= this.elements.length;
   }
 
-  public add(...values: T[]) {
+  public push(...values: T[]): void {
     this.elements.push(...values);
   }
 
-  public peek(): T {
-    if (this.isEmpty()) {
-      throw new EmptyError();
+  public top(): T {
+    if (this.empty()) {
+      throw new EmptyError(`${this.constructor.name}`);
     }
-    return this.elements[this.top];
+    return this.elements[this.head];
   }
 
-  public poll(): T {
-    const value = this.peek();
-    ++this.top;
-    if (this.top == this.elements.length) {
-      this.top = 0;
+  public pop(): T {
+    const value = this.top();
+    ++this.head;
+    if (this.head == this.elements.length) {
+      this.head = 0;
       this.elements = [];
     }
     return value;

@@ -12,22 +12,22 @@ describe('MinHeap', () => {
   });
 
   it('should be empty', () => {
-    expect(heap.isEmpty()).toEqual(true);
+    expect(heap.empty()).toEqual(true);
   });
 
   it('should have length 5', () => {
-    heap.add(5, 3, 4, 2, 1);
-    expect(heap.size()).toEqual(5);
+    heap.push(5, 3, 4, 2, 1);
+    expect(heap.size).toEqual(5);
   });
 
   it('should be 1 on top', () => {
-    expect(heap.peek()).toEqual(1);
+    expect(heap.top()).toEqual(1);
   });
 
   it('should be 1 on top then 2', () => {
-    expect(heap.poll()).toEqual(1);
-    expect(heap.poll()).toEqual(2);
-    expect(heap.size()).toEqual(3);
+    expect(heap.pop()).toEqual(1);
+    expect(heap.pop()).toEqual(2);
+    expect(heap.size).toEqual(3);
   });
 });
 
@@ -43,21 +43,21 @@ describe('MaxHeap', () => {
   });
 
   it('should be empty', () => {
-    expect(heap.isEmpty()).toEqual(true);
+    expect(heap.empty()).toEqual(true);
   });
 
   it('should have length 5', () => {
-    heap.add(1, 4, 2, 3, 5);
-    expect(heap.size()).toEqual(5);
+    heap.push(1, 4, 2, 3, 5);
+    expect(heap.size).toEqual(5);
   });
 
   it('should be 5 on top', () => {
-    expect(heap.peek()).toEqual(5);
+    expect(heap.top()).toEqual(5);
   });
 
   it('should be 5 on top then 4', () => {
-    expect(heap.poll()).toEqual(5);
-    expect(heap.poll()).toEqual(4);
-    expect(heap.size()).toEqual(3);
+    expect(heap.pop()).toEqual(5);
+    expect(heap.pop()).toEqual(4);
+    expect(heap.size).toEqual(3);
   });
 });

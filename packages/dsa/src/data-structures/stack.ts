@@ -1,34 +1,34 @@
 import { EmptyError } from '../errors';
 
 export class Stack<T = any> {
-  protected elements: T[];
+  private elements: T[];
 
   constructor() {
     this.elements = [];
   }
 
-  public size() {
+  public get size(): number {
     return this.elements.length;
   }
 
-  public isEmpty() {
-    return this.size() == 0;
+  public empty(): boolean {
+    return this.size == 0;
   }
 
-  public push(...values: T[]) {
+  public push(...values: T[]): void {
     this.elements.push(...values);
   }
 
-  public top() {
-    if (this.isEmpty()) {
-      throw new EmptyError();
+  public top(): T {
+    if (this.empty()) {
+      throw new EmptyError(`${this.constructor.name}`);
     }
-    return this.elements.at(-1) as T;
+    return this.elements[this.size - 1];
   }
 
-  public pop() {
-    if (this.isEmpty()) {
-      throw new EmptyError();
+  public pop(): T {
+    if (this.empty()) {
+      throw new EmptyError(`${this.constructor.name}`);
     }
     return this.elements.pop() as T;
   }
