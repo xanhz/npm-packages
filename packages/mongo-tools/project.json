@@ -1,0 +1,44 @@
+{
+  "name": "mongo-tools",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/mongo-tools/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/mongo-tools",
+        "main": "packages/mongo-tools/src/index.ts",
+        "tsConfig": "packages/mongo-tools/tsconfig.lib.json",
+        "assets": ["packages/mongo-tools/*.md"]
+      }
+    },
+    "publish": {
+      "command": "node tools/scripts/publish.mjs mongo-tools {args.tag}",
+      "dependsOn": ["build"]
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/mongo-tools/**/*.ts", "packages/mongo-tools/package.json"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "packages/mongo-tools/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    }
+  },
+  "tags": []
+}

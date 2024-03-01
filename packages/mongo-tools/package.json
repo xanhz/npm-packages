@@ -1,0 +1,20 @@
+{
+  "name": "@xanhz/mongo-tools",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "main": "./src/index.js",
+  "typings": "./src/index.d.ts",
+  "license": "UNLICENSED",
+  "description": "A NodeJS package for Mongo Tools",
+  "repository": {
+    "url": "https://github.com/xanhz/npm-packages/tree/main/packages/mongo-tools"
+  },
+  "keywords": [
+    "mongodb",
+    "mongo-tools"
+  ],
+  "dependencies": {
+    "bson": "^6.4.0",
+    "tslib": "^2.3.0"
+  }
+}
