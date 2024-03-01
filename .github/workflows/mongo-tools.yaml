@@ -1,0 +1,32 @@
+name: Publish Package @xanhz/mongo-tools to NPM
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - packages/mongo-tools/src/**
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Setup Node 16
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16.x'
+          registry-url: 'https://registry.npmjs.org'
+      
+      - name: Install dependencies
+        run: npm install
+
+      - name: Linting
+        run: npx nx run mongo-tools:lint
+
+      - name: Build & Publish
+        run: npx nx run mongo-tools:publish --tag latest
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
