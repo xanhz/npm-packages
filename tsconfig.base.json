@@ -17,7 +17,8 @@
     "paths": {
       "@xanhz/dsa": ["packages/dsa/src/index.ts"],
       "@xanhz/express-app": ["packages/express-app/src/index.ts"],
-      "@xanhz/mongo-tools": ["packages/mongo-tools/src/index.ts"]
+      "@xanhz/mongo-tools": ["packages/mongo-tools/src/index.ts"],
+      "@xanhz/nestjs-rabbit": ["packages/nestjs-rabbit/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
